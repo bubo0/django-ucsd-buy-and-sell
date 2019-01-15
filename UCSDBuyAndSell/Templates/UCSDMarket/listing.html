@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% block content %}
+<br>
+<br>
+<div class="container">
+	<form method="POST" action="/market/edit_listing/" enctype='multipart/form-data'>
+		<div class="row">
+			<div>
+				<h1>
+					<span class="editable-display">{{ Title }}</span>
+					<input class="editable-input" name='title' style="display:none">
+				</h1>
+			</div>
+			<div class='like-btn'>
+				{% if user.is_authenticated %}
+					<button id="like" data-listid="{{ id }}" class="btn btn-primary" type="button">
+					<span class="glyphicon glyphicon-thumbs-up"></span>
+					{% if Favd %}
+						Unfavorite
+					{% else %}
+						Favorite
+					{% endif %}
+					</button>
+				{% endif %}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm">
+				<div id="BasicImageCarousel" class="carousel slide" data-ride="carousel">
+					<div class="carousel-inner" style="height:25vw; !important">
+						{% for pic in Pictures %}
+							{% if pic.Number == 1%}
+								<div class="carousel-item active">
+									<img id="myImg" class="d-block w-100" src="{{ pic.Image }}"">
+								</div>
+							{% else %}
+								<div class="carousel-item">
+									<img id="myImg" class="d-block w-100" src="{{ pic.Image }}">
+								</div>
+							{% endif %}
+						{% endfor %}
+					</div>
+					<a class="carousel-control-prev" href="#BasicImageCarousel" role="button" data-slide="prev">
+						<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+						<span class="sr-only">Previous</span>
+					</a>
+					<a class="carousel-control-next" href="#BasicImageCarousel" role="button" data-slide="next">
+						<span class="carousel-control-next-icon" aria-hidden="true"></span>
+						<span class="sr-only">Next</span>
+					</a>
+				</div>
+				<div style='margin:10px'>
+					<b class='editable-input' style='display:none'>Check the images you wish to remove</b>
+					{% for pic in Pictures %}
+					<span class='image-icon' style="position:relative">
+						<img data-target="#BasicImageCarousel" data-slide-to="{{forloop.counter0}}" src="{{pic.Image}}">
+						<input class='editable-input image-edit' type='checkbox' name='deleteImage_{{pic.id}}' style='display:none'>
+						<!-- {{ pic.id }} -->
+					</span>
+					{% endfor %}
+				</div>
+				<div class='card editable-input' style='display:none; padding:5px'>
+					<b>Upload new images</b>
+					<input type='file' id='image-upload' name='image' multiple>
+				</div>
+			</div>
+			<div class="col-8">
+				<p><b>Seller:</b> {{ Seller }}</p>
+				<input style="display:none" name="id" value="{{id}}">
+				{% csrf_token %}
+				<p>
+					<b>Price: </b>$
+					<span class="editable-display">{{ Price }}</span>
+					<input type="number" step="0.01" name='price' class="editable-input" style="display:none">
+				</p>
+				<p>
+					<b>Can Deliver: </b>
+					<span class="editable-display">
+					{% if CanDeliver %}
+					Yes
+					{% else %}
+					No
+					{% endif %}
+					</span>
+					<input type="checkbox" name='canDeliver' class="editable-input boolean-value" style="display:none">
+				</p>
+				<p>
+					<b>Condition: </b>
+					<span class="editable-display">{{ Condition }}</span>
+					<input class="editable-input" name='condition' style="display:none">
+				</p>
+				<p>
+					<b>Description: </b>
+					<span class="editable-display">
+						{{ Description }}
+					</span>
+					<textarea class="form-control editable-input" name='description' style="display:none"></textarea>
+				</p>
+				</p>
+				<p>
+					<b>Contact Information: </b>
+					<span class="editable-display">
+					{{ ContactInformation }}
+					</span>
+					<textarea class="form-control editable-input" name='contactInformation' style="display:none"></textarea>
+				</p>
+
+				{% if isOwner %}
+				<button id="toggle-edit" class="btn btn-warning" type="button" onclick="toggleListingFields()">Edit Listing</button>
+				<button id="form-submit-btn" class="btn btn-success" type="button" onclick="submitEditListing()" style="display:none">Submit</button>
+				<a class="btn btn-danger" id="delete-listing-btn" href="{% url 'DeleteListing' %}?listing={{id}}">
+					<b>Delete Listing</b>
+				</a>
+				{% endif %}
+			</div>
+		</div>
+	</form>
+</div>
+
+<!-- The Modal -->
+<div id="imageModal" class="modal">
+  <!-- The Close Button -->
+  <span class="close">&times;</span>
+
+  <!-- Modal Content (The Image) -->
+  <img class="modal-content" id="expandedImage">
+</div>
+
+<script>
+// Get the modal
+var modal = document.getElementById('imageModal');
+
+// Get the image and insert it inside the modal - use its "alt" text as a caption
+var imgs = document.getElementsByClassName("d-block w-100");
+var modalImg = document.getElementById("expandedImage");
+for (i = 0; i < imgs.length; i++) { 
+    imgs[i].onclick = function(){
+    modal.style.display = "block";
+    modalImg.src = this.src;
+	}
+}
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() { 
+  modal.style.display = "none";
+}
+
+// Like
+$('#like').click(function(){
+    var listid;
+    listid = $(this).attr("data-listid");
+    $.get('/market/like/', {listing_id: listid}, function(data){
+               location.reload();
+    });
+});
+
+var toggleListingFields = function(){
+	let title = $('.editable-display');
+	if(title.is(":visible")){
+		editListingFields();
+	}
+	else
+	{
+		showListingFields();
+	}
+}
+
+var editListingFields = function(){
+	$('button#toggle-edit').text('Cancel')
+	$('.editable-display').hide();
+	$('#delete-listing-btn').hide();
+
+	$('.editable-input').show();
+	$('#form-submit-btn').show();
+
+	$('#form-submit-btn').attr('disabled','disabled');
+
+	$('.editable-input').each(function(h){
+		//check if boolean value
+		var self = $(this);
+		let initialElement = self.parent().find('.editable-display');
+
+		if(self.is('.image-edit'))
+		{
+			self.prop("checked", false);
+		}
+
+		if(initialElement.length == 0)
+		{
+			return;
+		}
+
+		if(self.is('.boolean-value'))
+		{
+			if(initialElement.text().trim() == "Yes"){
+				self.prop("checked", true);
+			}
+			else
+			{
+				self.prop("checked", false)
+			}
+		}
+
+		else
+		{
+			self.val(initialElement.html().trim());
+		}
+	})
+	$('.editable-input').on('keyup keydown change', function(){
+		$('#form-submit-btn').removeAttr('disabled');
+	})
+}
+
+var showListingFields = function(){
+	$('button#toggle-edit').text('Edit Listing')
+	$('.editable-display').show();
+	$('#delete-listing-btn').show();
+	$('.editable-input').hide();
+	$('#form-submit-btn').hide();	
+	$('.editable-input').unbind('keyup keydown change');
+}
+
+var submitEditListing = function(){
+	$('form').submit();
+}
+
+</script>
+
+{% endblock %}

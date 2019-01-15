@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<title>Search Results</title>
+<p>You searched for: <strong>{{ query }}</strong></p>
+
+{% if posts %}           
+	<p>Found {{ posts|length }} item{{ posts|pluralize }}.</p>
+	<ul>               
+		{% for Listing in posts %}
+		<div class="card listing">
+			<div class="card-body">
+				<h5 class='card-title'>{{Listing.Title}}</h5>
+				<div class='row'>
+					<div class="col-4" style="margin:auto" height="50%">
+						<a href="{% url 'Listing' %}?listing={{ Listing.id }}">
+							<img src="{{ Listing.Thumbnail }}" width="50%">
+						</a>
+					</div>
+					<div class="col-8 listing-desc">
+						<p><b>Seller: </b>{{ Listing.Seller }}</p>
+						<div><b>Price: </b>${{ Listing.Price }}</div>
+						{% if Listing.CanDeliver %}
+							<div><b>Can Deliver: </b>Yes</div>
+						{% else %}
+							<div><b>Can Deliver: </b>No</div>
+						{% endif %}
+						<div><b>Condition: </b>{{ Listing.Condition }}</div>
+						<div class='ml-auto mt-auto'>
+							{% if user.is_authenticated %}
+								<button id="like" data-listid="{{ Listing.id }}" class="FavBtn btn btn-primary" type="button">
+								<span class="glyphicon glyphicon-thumbs-up"></span>
+								{% if Listing.Favd %}
+									Unfavorite
+								{% else %}
+									Favorite
+								{% endif %}
+								</button>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>  
+		{% endfor %}           
+	</ul>       
+{% else %}           
+	<p>No items matched your search criteria.</p>       
+{% endif %}
+<script>
+// Like
+$('.FavBtn').click(function(){
+    var listid;
+    listid = $(this).attr("data-listid");
+    $.get('/market/like/', {listing_id: listid}, function(data){
+               location.reload();
+    });
+});
+</script>
+
+{% endblock %}
