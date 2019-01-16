@@ -1,6 +1,6 @@
 Django project for students, staff and faulty to buy and sell goods on campus conveniently.
 
-Team member github id:
+Team member github id:  
 pbgreerb
 bubo0
 ptueller
