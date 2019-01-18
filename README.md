@@ -1,4 +1,4 @@
-#Django project for students, staff and faulty to buy and sell goods on campus conveniently.
+# Django project for students, staff and faulty to buy and sell goods on campus conveniently.
 
 Team member github id:  
 pbgreerb
@@ -8,7 +8,7 @@ wangzining
 techit-limtiyakul
 
 
-#How to setup the Django Project:
+# How to setup the Django Project:
 
 1. Be sure you have python3 installed. Just google how to get it for your OS if not.
 
