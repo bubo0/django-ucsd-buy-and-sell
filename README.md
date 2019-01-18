@@ -1,4 +1,4 @@
-Django project for students, staff and faulty to buy and sell goods on campus conveniently.
+#Django project for students, staff and faulty to buy and sell goods on campus conveniently.
 
 Team member github id:  
 pbgreerb
