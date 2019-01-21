@@ -328,6 +328,8 @@ def EditListings(request):
         messages.error(request, 'User Not Authenticated')
         return render(request, "UCSDMarket/home.html")
 
+# TODO more searching functions in the future
+
 def SearchListings(request):
     template = "UCSDMarket/my_listings.html"
     query = request.GET.get('q')
