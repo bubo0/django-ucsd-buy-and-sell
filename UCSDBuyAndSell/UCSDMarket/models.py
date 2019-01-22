@@ -38,7 +38,8 @@ class Favorite(models.Model):
 class Picture(models.Model):
 	picture = models.ImageField(upload_to = 'pictures/')
 	listingKey = models.ForeignKey(Listing,on_delete=models.CASCADE)
-
+        # TODO: store images in database
+	
 @receiver(models.signals.post_delete, sender=Picture)
 def DeleteImageFile(sender, instance, **kwargs):
     if instance.picture:
