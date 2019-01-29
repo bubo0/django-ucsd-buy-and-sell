@@ -18,6 +18,9 @@ from django.db.models import Q
 from django.http import HttpResponse
 from decimal import Decimal
 
+
+# TODO add a comment feature in the future?
+
 # Create your views here.
 def Home(request):
     if request.user.is_authenticated:
